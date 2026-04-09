@@ -1,19 +1,36 @@
-# Alzheimer’s MRI Classification
+\# Alzheimer’s MRI Classification
 
-This repository contains the implementation of deep learning models for Alzheimer’s disease classification using MRI brain images.
 
-The project includes:
 
-* **ANN (Artificial Neural Network) baseline model**
-* **GoogLeNet (CNN-based deep learning model)**
+This repository contains deep learning models for Alzheimer’s disease classification using MRI brain images.
 
-Both models are trained and evaluated on the same MRI dataset for fair comparison.
 
-The performance is compared using:
 
-* Accuracy
-* Precision
-* Recall
-* F1-score
+\## Models Included
 
-This project is developed as part of a Deep Neural Networks (DNN) assignment.
+
+
+\* \*\*ANN\*\* baseline
+
+\* \*\*GoogLeNet\*\*
+
+
+
+\## Evaluation Metrics
+
+
+
+\* Accuracy
+
+\* Precision
+
+\* Recall
+
+\* F1-score
+
+
+
+Developed as part of a Deep Neural Networks (DNN) assignment.
+
+
+

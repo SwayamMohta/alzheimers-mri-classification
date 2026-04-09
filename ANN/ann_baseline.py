@@ -91,7 +91,8 @@ transform = transforms.Compose([
     transforms.ToTensor(),
 ])
 
-DATA_DIR = "./dataset/Data"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATA_DIR = os.path.join(BASE_DIR, "..", "dataset", "Data")
 
 # =============================================================================
 # 3. EARLY STOPPING
@@ -382,16 +383,39 @@ if __name__ == "__main__":
         cm = confusion_matrix(y_true, y_pred)
 
         # ==============================
+        # ADDITIONAL METRICS
+        # ==============================
+        # Sensitivity = Recall (macro average)
+        sensitivity = recall
+
+        # Specificity calculation for multi-class classification
+        specificity_scores = []
+
+        for i in range(len(cm)):
+            tp = cm[i, i]
+            fn = np.sum(cm[i, :]) - tp
+            fp = np.sum(cm[:, i]) - tp
+            tn = np.sum(cm) - (tp + fn + fp)
+
+            specificity_i = tn / (tn + fp) if (tn + fp) > 0 else 0
+            specificity_scores.append(specificity_i)
+
+        specificity = np.mean(specificity_scores)
+
+        # ==============================
         # CLEAN FINAL OUTPUT
         # ==============================
         print("\n" + "=" * 40)
         print("ANN FINAL PERFORMANCE METRICS")
         print("=" * 40)
 
-        print(f"Accuracy : {acc:.4f}")
-        print(f"Precision: {prec:.4f}")
-        print(f"Recall   : {recall:.4f}")
-        print(f"F1 Score : {f1:.4f}")
+        print(f"Accuracy    : {acc:.4f}")
+        print(f"Precision   : {prec:.4f}")
+        print(f"Recall      : {recall:.4f}")
+        print(f"F1 Score    : {f1:.4f}")
+        print(f"AUC-ROC     : {auc:.4f}")
+        print(f"Sensitivity : {sensitivity:.4f}")
+        print(f"Specificity : {specificity:.4f}")
 
         # ==============================
         # TRAINING CURVES + CONFUSION MATRIX
@@ -430,39 +454,54 @@ if __name__ == "__main__":
         plt.show()
 
         # ==============================
-        # MAIN METRICS BAR GRAPH
+        # FINAL METRICS GRAPH (IMPROVED)
         # ==============================
         metric_names = [
             'Accuracy',
-            'Precision',
-            'Recall',
-            'F1 Score'
+            'Macro F1',
+            'AUC-ROC',
+            'Sensitivity',
+            'Specificity'
         ]
 
         metric_values = [
             acc,
-            prec,
-            recall,
-            f1
+            f1,
+            auc,
+            sensitivity,
+            specificity
         ]
 
-        plt.figure(figsize=(8, 5))
-        bars = plt.bar(metric_names, metric_values)
+        plt.figure(figsize=(10, 6))
 
-        plt.ylim(0, 1)
-        plt.ylabel("Score")
-        plt.title("ANN Performance Metrics Comparison")
+        bars = plt.bar(
+            metric_names,
+            metric_values,
+            edgecolor='black',
+            linewidth=1.2
+        )
+
+        plt.ylim(0, 1.1)
+        plt.ylabel("Score", fontsize=12)
+        plt.title("ANN Test Set Performance Metrics", fontsize=14, fontweight='bold')
+        plt.xlabel("Metrics", fontsize=12)
+
+        plt.grid(axis='y', linestyle='--', alpha=0.5)
+
+        plt.xticks(rotation=15, fontsize=10)
+        plt.yticks(fontsize=10)
 
         for bar in bars:
             height = bar.get_height()
-
             plt.text(
                 bar.get_x() + bar.get_width() / 2,
                 height + 0.02,
-                f"{height:.2f}",
-                ha='center'
+                f"{height:.3f}",
+                ha='center',
+                fontsize=10,
+                fontweight='bold'
             )
 
         plt.tight_layout()
-        plt.savefig("ann_metrics_bar_graph.png")
+        plt.savefig("ann_required_metrics_graph.png", dpi=300)
         plt.show()
